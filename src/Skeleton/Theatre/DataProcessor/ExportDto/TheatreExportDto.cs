@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using System.Xml.Serialization;
 using Theatre.Data.Models;
 using Theatre.Validation;
 
