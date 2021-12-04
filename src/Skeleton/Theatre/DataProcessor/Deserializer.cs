@@ -3,7 +3,14 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
+    using System.Globalization;
+    using System.IO;
+    using System.Text;
+    using System.Xml.Serialization;
     using Theatre.Data;
+    using Theatre.Data.Models;
+    using Theatre.Data.Models.Enums;
+    using Theatre.DataProcessor.ImportDto;
 
     public class Deserializer
     {
@@ -20,7 +27,47 @@
 
         public static string ImportPlays(TheatreContext context, string xmlString)
         {
-            throw new NotImplementedException();
+            var messageBuilder = new StringBuilder();
+
+            Type type = typeof(PlayDto[]);
+
+            var root = new XmlRootAttribute("Plays");
+            var serializer = new XmlSerializer(type, root);
+
+            using var stringReader = new StringReader(xmlString);
+            var playDtos = (PlayDto[])serializer.Deserialize(stringReader);
+
+            foreach (PlayDto playDto in playDtos)
+            {
+                bool isDurationValid = TimeSpan.TryParseExact(
+                    playDto.Duration, "c", CultureInfo.InvariantCulture, out TimeSpan duration);
+
+                bool isGenreValid = Enum.IsDefined(typeof(Genre), playDto.Genre);
+
+                bool isDurationRangeValid = duration.CompareTo(new TimeSpan(1, 0, 0)) > 0;
+
+                if (!IsValid(playDto) || !isDurationValid || !isGenreValid || !isDurationRangeValid)
+                {
+                    messageBuilder.AppendLine(ErrorMessage);
+                    continue;
+                }
+
+                var play = new Play
+                {
+                    Title = playDto.Title,
+                    Description = playDto.Description,
+                    Screenwriter = playDto.Screenwriter,
+                    Rating = playDto.Rating,
+                    Duration = duration,
+                    Genre = (Genre)Enum.Parse(typeof(Genre), playDto.Genre),
+                };
+
+                messageBuilder.AppendLine(string.Format(SuccessfulImportPlay, play.Title, play.Genre, play.Rating));
+                context.Add(play);
+                context.SaveChanges();
+            }
+
+            return messageBuilder.ToString().TrimEnd();
         }
 
         public static string ImportCasts(TheatreContext context, string xmlString)

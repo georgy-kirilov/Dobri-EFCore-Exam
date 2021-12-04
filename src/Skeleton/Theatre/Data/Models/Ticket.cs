@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Theatre.Validation;
 
 namespace Theatre.Data.Models
 {
@@ -10,10 +11,12 @@ namespace Theatre.Data.Models
         public int Id { get; set; }
 
        // [Range(1.00, 100.00)]
+       [Range((double)ValidationConstraints.Ticket.MinPrice, (double)ValidationConstraints.Ticket.MaxPrice)]
         public decimal Price { get; set; }
 
         [Required]
         //range 1-10
+        [Range(ValidationConstraints.Ticket.MinRowNumber, ValidationConstraints.Ticket.MaxRowNumber)]
         public sbyte RowNumber { get; set; }
 
         [Required]
@@ -32,9 +35,3 @@ namespace Theatre.Data.Models
         public virtual Play Play { get; set; }
     }
 }
-
-//•	Id – integer, Primary Key
-//•	Price – decimal in the range [1.00….100.00] (required)
-//•	RowNumber – sbyte in range[1….10](required)
-//•	PlayId – integer, foreign key(required)
-//•	TheatreId – integer, foreign key(required)
