@@ -15,6 +15,32 @@
     {
         public static string ExportTheatres(TheatreContext context, int numbersOfHalls)
         {
+            var theatres = context.Theatres
+                .ToList()
+                .Where(th => th.NumberOfHalls >= numbersOfHalls && th.Tickets.Count >= 20)
+                .Select(th => new TheatreExportDto
+                {
+                    Name = th.Name,
+                    Halls = th.NumberOfHalls,
+
+                    TotalIncome = th.Tickets.ToList()
+                        .Where(ti => ti.RowNumber >= 1 && ti.RowNumber <= 5).Sum(ti => ti.Price),
+
+                    Tickets = th.Tickets.ToList()
+                        .Where(ti => ti.RowNumber >= 1 && ti.RowNumber <= 5)
+                        .Select(ti => new TicketExportDto
+                        {
+                            Price = ti.Price,
+                            RowNumber = ti.RowNumber
+                        })
+                        .OrderByDescending(ti => ti.Price)
+                        .ToList()
+                })
+                .OrderByDescending(th => th.Halls)
+                .ThenBy(th => th.Name);
+
+            return JsonConvert.SerializeObject(theatres, Formatting.Indented, new DecimalFormatConverter());
+            /*
             List<TheatreExportDto> theatres = new List<TheatreExportDto>();
 
             foreach (var theatre in context.Theatres)
@@ -54,7 +80,7 @@
 
             theatres = theatres.OrderByDescending(t => t.NumberOfHalls).ThenBy(t => t.Name).ToList();
 
-            return JsonConvert.SerializeObject(theatres);
+            return JsonConvert.SerializeObject(theatres);*/
         }
 
         public static string ExportPlays(TheatreContext context, double rating)
@@ -103,6 +129,31 @@
                 serializer.Serialize(sw, plays);
             }
             return sb.ToString();
+        }
+    }
+
+    public class DecimalFormatConverter : JsonConverter
+    {
+        public override bool CanConvert(Type objectType)
+        {
+            return (objectType == typeof(decimal));
+        }
+
+        public override void WriteJson(JsonWriter writer, object value,
+                                       JsonSerializer serializer)
+        {
+            writer.WriteValue(string.Format("{0:N2}", value));
+        }
+
+        public override bool CanRead
+        {
+            get { return false; }
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType,
+                                     object existingValue, JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
         }
     }
 }

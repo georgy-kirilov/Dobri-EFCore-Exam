@@ -16,12 +16,12 @@ namespace Theatre.DataProcessor.ExportDto
 
         [Required]
         [Range(ValidationConstraints.Theatre.MinNumberOfHalls, ValidationConstraints.Theatre.MaxNumberOfHalls)]
-        public sbyte NumberOfHalls { get; set; }
+        public sbyte Halls { get; set; }
 
         [Required]
         public decimal TotalIncome{ get; set; }
 
-        public ICollection<Ticket> Tickets { get; set; }
+        public ICollection<TicketExportDto> Tickets { get; set; }
 
     }
 }
