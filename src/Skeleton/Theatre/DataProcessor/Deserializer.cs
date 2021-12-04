@@ -72,7 +72,35 @@
 
         public static string ImportCasts(TheatreContext context, string xmlString)
         {
-            throw new NotImplementedException();
+            var messageBuilder = new StringBuilder();
+            var serializer = new XmlSerializer(typeof(CastDto[]), new XmlRootAttribute("Casts"));
+            var castDtos = (CastDto[])serializer.Deserialize(new StringReader(xmlString));
+
+            foreach (CastDto castDto in castDtos)
+            {
+                if (!IsValid(castDto))
+                {
+                    messageBuilder.AppendLine(ErrorMessage);
+                    continue;
+                }
+
+                var cast = new Cast
+                {
+                    FullName = castDto.FullName,
+                    PhoneNumber = castDto.PhoneNumber,
+                    IsMainCharacter = castDto.IsMainCharacter,
+                    PlayId = castDto.PlayId,
+                };
+
+                messageBuilder.AppendLine(
+                    string.Format(
+                        SuccessfulImportActor, cast.FullName, cast.IsMainCharacter ? "main" : "lesser"));
+
+                context.Add(cast);
+                context.SaveChanges();
+            }
+
+            return messageBuilder.ToString().TrimEnd();
         }
 
         public static string ImportTtheatersTickets(TheatreContext context, string jsonString)
