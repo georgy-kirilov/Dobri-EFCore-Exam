@@ -9,8 +9,8 @@ namespace Theatre.Validation
             public const int NameMinLength = 4;
             public const int NameMaxLength = 30;
 
-            public const int MinNumberOfHalls = 1;
-            public const int MaxNumberOfHalls = 10;
+            public const sbyte MinNumberOfHalls = 1;
+            public const sbyte MaxNumberOfHalls = 10;
 
             public const int DirectorMinLength = 4;
             public const int DirectorMaxLength = 30;
@@ -20,9 +20,6 @@ namespace Theatre.Validation
         {
             public const int TitleMinLength = 4;
             public const int TitleMaxLength = 50;
-
-            public const string MinDuration = "01:00:00";
-            public const string MaxDuration = "23:59.59";
 
             public const float MinRating = 0;
             public const float MaxRating = 10;

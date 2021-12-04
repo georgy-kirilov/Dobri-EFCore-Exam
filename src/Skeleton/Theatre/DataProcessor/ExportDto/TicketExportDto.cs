@@ -15,7 +15,6 @@ namespace Theatre.DataProcessor.ExportDto
         [Required]
         //range 1-10
         [Range(ValidationConstraints.Ticket.MinRowNumber, ValidationConstraints.Ticket.MaxRowNumber)]
-        public sbyte RowNumber { get; set; 
-
+        public sbyte RowNumber { get; set; }
     }
 }

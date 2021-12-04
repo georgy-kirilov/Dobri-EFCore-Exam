@@ -17,6 +17,6 @@ namespace Theatre.DataProcessor.ExportDto
 
         [Required]
 
-        public string MainCharacter { get; set; };
+        public string MainCharacter { get; set; }
     }
 }

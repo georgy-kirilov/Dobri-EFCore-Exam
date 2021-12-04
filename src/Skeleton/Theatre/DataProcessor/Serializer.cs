@@ -29,7 +29,7 @@
                     NumberOfHalls = theatre.NumberOfHalls,
                 };
 
-                List<TicketExportDto> tickets = new List<TicketExportDto>();
+                var tickets = new HashSet<TicketExportDto>();
                 decimal TotalIncome = 0;
 
                 foreach (var ticket in theatre.Tickets)

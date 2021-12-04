@@ -1,10 +1,12 @@
 ﻿namespace Theatre.DataProcessor
 {
+    using Newtonsoft.Json;
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.Globalization;
     using System.IO;
+    using System.Linq;
     using System.Text;
     using System.Xml.Serialization;
     using Theatre.Data;
@@ -62,7 +64,9 @@
                     Genre = (Genre)Enum.Parse(typeof(Genre), playDto.Genre),
                 };
 
-                messageBuilder.AppendLine(string.Format(SuccessfulImportPlay, play.Title, play.Genre, play.Rating));
+                messageBuilder.AppendLine(
+                    string.Format(SuccessfulImportPlay, play.Title, play.Genre, play.Rating));
+
                 context.Add(play);
                 context.SaveChanges();
             }
@@ -92,9 +96,11 @@
                     PlayId = castDto.PlayId,
                 };
 
+                string roleType = cast.IsMainCharacter ? "main" : "lesser";
+
                 messageBuilder.AppendLine(
                     string.Format(
-                        SuccessfulImportActor, cast.FullName, cast.IsMainCharacter ? "main" : "lesser"));
+                        SuccessfulImportActor, cast.FullName, roleType));
 
                 context.Add(cast);
                 context.SaveChanges();
@@ -105,9 +111,53 @@
 
         public static string ImportTtheatersTickets(TheatreContext context, string jsonString)
         {
-            throw new NotImplementedException();
-        }
+            var messageBuilder = new StringBuilder();
+            var theatreDtos = JsonConvert.DeserializeObject<TheatreImportDto[]>(jsonString);
 
+            foreach (TheatreImportDto theatreDto in theatreDtos)
+            {
+                if (!IsValid(theatreDto))
+                {
+                    messageBuilder.AppendLine(ErrorMessage);
+                    continue;
+                }
+
+                var theatre = new Theatre
+                {
+                    Name = theatreDto.Name,
+                    NumberOfHalls = theatreDto.NumberOfHalls,
+                    Director = theatreDto.Director,
+                };
+
+                foreach (TicketImportDto ticketDto in theatreDto.Tickets)
+                {
+                    Play play = context.Plays.FirstOrDefault(p => p.Id == ticketDto.PlayId);
+
+                    if (!IsValid(ticketDto) || play == null)
+                    {
+                        messageBuilder.AppendLine(ErrorMessage);
+                        continue;
+                    }
+
+                    var ticket = new Ticket
+                    {
+                        Price = ticketDto.Price,
+                        RowNumber = ticketDto.RowNumber,
+                        PlayId = ticketDto.PlayId,
+                    };
+
+                    theatre.Tickets.Add(ticket);
+                }
+
+                messageBuilder.AppendLine(
+                    string.Format(SuccessfulImportTheatre, theatre.Name, theatre.Tickets.Count));
+
+                context.Theatres.Add(theatre);
+                context.SaveChanges();
+            }
+
+            return messageBuilder.ToString().TrimEnd();
+        }
 
         private static bool IsValid(object obj)
         {
