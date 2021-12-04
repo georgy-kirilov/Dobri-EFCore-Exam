@@ -21,7 +21,8 @@ namespace Theatre.Validation
             public const int TitleMinLength = 4;
             public const int TitleMaxLength = 50;
 
-            // Duration constraints
+            public const string MinDuration = "01:00:00";
+            public const string MaxDuration = "23:59.59";
 
             public const float MinRating = 0;
             public const float MaxRating = 10;
