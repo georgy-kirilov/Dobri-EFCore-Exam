@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Theatre.Validation;
 
 namespace Theatre.Data.Models
 {
@@ -11,6 +12,7 @@ namespace Theatre.Data.Models
 
         //•	FullName – text with length [4, 30] (required)
         [Required]
+        [StringLength(ValidationConstraints.Cast.FullNameMaxLength, MinimumLength = ValidationConstraints.Play.TitleMinLength)]
         public string FullName { get; set; }
 
         [Required]
@@ -19,6 +21,7 @@ namespace Theatre.Data.Models
         //text in the following format: "+44-{2 numbers}-{3 numbers}-{4 numbers}".
         //Valid phone numbers are: +44 - 53 - 468 - 3479, +44 - 91 - 842 - 6054, +44 - 59 - 742 - 3119
         [Required]
+        [RegularExpression(ValidationConstraints.Cast.PhoneNumberRegex)]
         public string PhoneNumber { get; set; }
 
 
