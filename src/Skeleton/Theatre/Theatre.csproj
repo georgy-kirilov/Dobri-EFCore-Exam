@@ -26,6 +26,4 @@
     <Folder Include="DataProcessor\ExportDto\" />
     <Folder Include="Data\Models\Enums\" />
   </ItemGroup>
-
-   
 </Project>
